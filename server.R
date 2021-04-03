@@ -5,7 +5,8 @@ function(input, output, server) {
     h <- input$h
     out <- vector("list", length = obs)
     for (i in seq_along(out)) {
-      out[[i]] <- rcCIR(n=input$h, Dt = 0.1, x0 = input$bs_0, theta = c(input$ir_mean * input$reversion, input$reversion, input$ir_sd))
+      sim<-rcCIR(n=input$h, Dt = 0.1, x0 = input$bs_0, theta = c(input$ir_mean * input$reversion, input$reversion, input$ir_sd))
+      out[[i]] <- sim
     }
     
     out
@@ -13,15 +14,14 @@ function(input, output, server) {
   
   bs_sims <- reactive({
     set.seed(12345)
-    rates <- base_rate %>%
-      filter(
-        Date >= input$daterange[1] & Date <= input$daterange[2]
-      )
-    b_rate <- rates$Value
-    
+    b_rates <- base_rate_df %>%
+      dplyr::filter(Index>=input$start &
+              Index<=input$end)
     obs <- input$boot_sample
-    
-    rate_changes <- diff(b_rate) / b_rate[-length(b_rate)]
+    br<-b_rate$..Close
+    rate_changes <- diff(br) / br[-length(br)]
+  
+    rate_changes<-rate_changes[!is.na(rate_changes)]
     
     out <- vector("list", length = obs)
     for (i in seq_along(out)) {
@@ -29,7 +29,8 @@ function(input, output, server) {
       initial_b_rate <- input$bs_0
       sim_changes <- 1 + sample(rate_changes, size = input$h, replace = TRUE)
       sim_changes <- cumprod(sim_changes)
-      out[[i]] <- c(initial_b_rate * sim_changes)
+      sim<-initial_b_rate * sim_changes
+      out[[i]] <- sim
     }
     
     out
@@ -50,8 +51,8 @@ function(input, output, server) {
     out <- vector("list", length = length(dat))
     for (i in seq_along(out)) {
       out[[i]]$data <- dat[[i]]
-      out[[i]]$name <- paste0("V", i)
-    }
+     out[[i]]$name <- paste0("V", i)
+     }
     isolate({
       title <- if (input$type == "cir") {
         list(
@@ -68,9 +69,9 @@ function(input, output, server) {
                        " "), 
           sub = paste0("Parameters: Initial rate = ", input$bs_0, 
                        ", Sampled Changes from ", 
-                       input$daterange[1], 
+                       input$start, 
                        " to ",
-                       input$daterange[2])
+                         input$end)
         )
       }
     })
@@ -83,40 +84,30 @@ function(input, output, server) {
   output$sims_chart <- renderHighchart({
     dat <- sims_chart_prep()$dat
     titles <- sims_chart_prep()$titles  
-    
     highchart() %>%
-      hc_chart(
-        zoomType = "y"
-      ) %>%
+      hc_chart(zoomType = "y") %>%
       hc_title(text = titles$main) %>%
       hc_subtitle(text = titles$sub) %>%
       hc_exporting(
         enabled = TRUE,
-        buttons = tychobratools::hc_btn_options()
-      ) %>%
+        buttons = tychobratools::hc_btn_options()) %>%
       hc_legend(
         enabled = FALSE,
-        reversed = TRUE
-      ) %>%
+        reversed = TRUE) %>%
       hc_plotOptions(
         series = list(
           tooltip = list(
             crosshairs = TRUE,
             pointFormat = 'Rate: <b>{point.y:,.2f}</b>'
           ),
-          marker = list(enabled = FALSE)
-        )
-      ) %>%
+          marker = list(enabled = FALSE))) %>%
       hc_xAxis(
-        categories = 1:isolate({input$h}),
-        title = list(text = "Simulated Steps")
-      ) %>%
+        categories = isolate({max + seq(1/12,input$h/12,by=1/12)}),
+        type = 'yearmon',
+        title = list(text = "Months Ahead")) %>%
       hc_yAxis(
-        title = list(text = "Rate")
-      ) %>%
-      hc_add_series_list(
-        dat
-      )
+        title = list(text = "Rate")) %>%
+      hc_add_series(dat)
   })
   
   output$sims_dist <- renderHighchart({
@@ -125,8 +116,7 @@ function(input, output, server) {
     names(out) <- paste0("Simulation", 1:length(out))
     out <- as_data_frame(out)
     out[nrow(out),] %>% as.numeric()->final
-    # den<-density(final)
-    # dat<-tibble(y=den$y)
+    df<-approxfun(density(final))
     hchart(density(final),name="Final Base Rate Distribution",type="area")
   })
   
@@ -134,7 +124,7 @@ function(input, output, server) {
     out <- sel_sim()
     names(out) <- paste0("Simulation", 1:length(out))
     out <- as_data_frame(out)
-    out <- cbind("t" = 1:nrow(out), out)
+    out <- cbind("t" = max + seq(1/12,input$h/12,by=1/12), out)
     
     DT::datatable(
       out,
@@ -151,7 +141,7 @@ function(input, output, server) {
         columns = 2:length(out),
         digits = 2
       )
-  }, server = FALSE)
+  })
   
   output$ir_chart <- renderHighchart({
     highchart(type = "stock") %>%
@@ -167,15 +157,12 @@ function(input, output, server) {
         enabled = TRUE,
         reversed = TRUE
         )  %>%
-      hc_xAxis(
-        type = 'datetime'
-      ) %>%
       hc_yAxis(
         title = list(text = "Rate")
       ) %>%
       hc_add_series(
-        base_rate_xts[index(base_rate_xts)<=input$daterange[2]
-                      & index(base_rate_xts)>=input$daterange[1]]
-      )
+        {base_rate_df %>%
+          dplyr::filter(Index>=input$start &
+                          Index<=input$end)},hcaes(Index, ..Close), name = "Original")
   })
 }
