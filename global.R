@@ -1,4 +1,5 @@
 library(shiny)
+library(praise)
 library(tychobratools)
 library(highcharter)
 library(DT)

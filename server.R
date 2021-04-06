@@ -3,10 +3,10 @@ function(input, output, server) {
     dat <- if (input$rate == "base") {
       base_rate_df %>% select(Index,..Close) %>% rename(rate=..Close)
     } 
-    if (input$rate == "UK_95") {
+    if (input$rate == "fixed5yr_95") {
       fixed5yr_df %>% select(Index,UK_95) %>% rename(rate=UK_95)
     }
-    else {
+    else  {
       fixed5yr_df %>% select(Index,UK_75) %>% rename(rate=UK_75)
     }  
   })
@@ -54,8 +54,7 @@ function(input, output, server) {
         filter(Index==max) %>% select(rate) %>% unlist(use.names = FALSE)
       sim_changes <- 1 + sample(rate_changes, size = input$h, replace = TRUE)
       sim_changes <- cumprod(sim_changes)
-      sim<-c(initial_b_rate,initial_b_rate * sim_changes)
-      out[[i]] <- sim
+      out[[i]] <- c(initial_b_rate * sim_changes)
     }
     
     out
@@ -86,9 +85,11 @@ function(input, output, server) {
                        ", sigma = ", input$ir_sd) 
         ) 
       } else {
+        
         list(
           main = paste0("Bootstrap Resampling - Changes in ",input$rate), 
-          sub = paste0("Parameters: Initial rate =", dat$rate[[1]], 
+          sub = paste0("Parameters: Initial rate =", initial_b_rate<-sel_rate() %>%
+                         filter(Index==max) %>% select(rate) %>% unlist(use.names = FALSE), 
                        ", Sampled Changes from ", 
                        input$start, 
                        " to ",
@@ -145,7 +146,7 @@ function(input, output, server) {
     out <- sel_sim()
     names(out) <- paste0("Simulation", 1:length(out))
     out <- as_data_frame(out)
-    out <- cbind("t" = max + seq(1/12,input$h/12,by=1/12), out)
+    out <- cbind("t" = 1:length(out), out)
     
     DT::datatable(
       out,
