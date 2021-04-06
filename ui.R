@@ -4,16 +4,21 @@ fluidPage(
   fluidRow(
     headerPanel(
       tags$div(
-        h1("UK Base Rate Simulator", style = "display: inline", class="center"),
-        a(
-          href = "https://github.com/barryquinn1",
-          icon("github", class="fa-lg pull-right")
-        ),
-        img(src="rw_hex.png", align="left",width="5%",
-            href="https://github.com/barryquinn1/tsfe")
-      ), 
-      windowTitle = "Interest Rate"
-    )
+        h1("Interest Rate Forecasts", align="center"),
+        img(src="rw_hex.png", align="left",width="10%",
+            href="https://github.com/barryquinn1/tsfe"),
+        h3("Simulation stories",align="center"),
+      ), windowTitle = "Interest Rate"),
+    p("These stories are inspired by discussions with my learned colleagues", 
+        a("Mark Farrell",href="https://proactuary.com/about-proactuary/")," and",
+        a("Ronan Gallagher.",
+          href="https://www.business-school.ed.ac.uk/staff/ronan-gallagher"),
+      " As we talk about what the future holds for UK interest rates, 
+      I thought to build a simulations",em("story-teller"),
+      "to see what the future may hold. This app allows to to tell future stories using the parametric techniques of", 
+      a("Cox–Ingersoll–Ross (CIR) model",href="https://en.wikipedia.org/wiki/Cox–Ingersoll–Ross_model"),", a one-factor market risk model"
+      ,"The nonparametric stories evolve via a bootstrap of the change in the underlying historical interest rate.  The app allows the choice of
+      the Bank of England base rate and the average 5 year fixed mortgage rate for LTV95% or LTV75%.",align="center")
   ),
   br(),
   fluidRow(
@@ -26,9 +31,18 @@ fluidPage(
               "Bootstrap Sample Size",
               min = 1,max = 5000,value = 100,ticks = FALSE)),
           column(width = 6,sliderInput(
-              "h","Months Ahead",
+              "h","Months Ahead (h)",
               min = 1,max = 60,value = 60,ticks = FALSE)),
-        br(),radioButtons(
+          br(),
+          radioButtons(
+            inputId = "rate",
+            label = "Rate to Forecast",
+            choices = c("UK Base Rate" = "base",
+                        "UK Fixed 5 yr Interest Rate(LTV_75%)" = "fixed5yr_75",
+                        "UK Fixed 5 yr Interest Rate(LTV_95%)" = "fixed5yr_95"),
+            inline = TRUE,selected = "fixed5yr_75"),
+        br(),
+        radioButtons(
           inputId = "type",
           label = "Type of Walk",
           choices = c("Cox-Ingersoll-Ross" = "cir","Bootstrap Resampling" = "bootstrap"),
@@ -55,13 +69,8 @@ fluidPage(
           'input.type == "bootstrap"',
           h3("Bootstrap Resampling"),
           br(),
-          numericInput(
-            inputId = "bs_0",
-            label = "Initial Rate (yield at h=0)",
-            value = base_rate$Value[1],
-            step = 0.1),
           column(width = 6,
-            selectInput(inputId="start",label="Sample Start Point",datelist,selected = datelist[400])),
+            selectInput(inputId="start",label="Sample Start Point",datelist,selected = min)),
           column(width = 6,
             selectInput(inputId="end",label="Sample End Point",datelist,selected = max))))))),
     column(
@@ -75,7 +84,7 @@ fluidPage(
       width = 12,
       class = "text-center",
       br(),br(),hr(),
-      h1("Historical UK Base Rate"),
+      h1("Historical Interest Rate"),
       h3("(For Your Reference in Making Parameter Selections in Above Walk)"),br()),
     column(
       width = 12,wellPanel(highchartOutput("ir_chart", height = 500)))))
