@@ -1,14 +1,12 @@
 function(input, output, server) {
   sel_rate<- reactive({
     dat <- if (input$rate == "base") {
-      base_rate_df %>% select(Index,..Close) %>% rename(rate=..Close)
-    } 
-    if (input$rate == "fixed5yr_95") {
-      fixed5yr_df %>% select(Index,UK_95) %>% rename(rate=UK_95)
+      all_rates %>% select(Index,base_rate) %>% rename(rate=base_rate)
+    } else if (input$rate == "fixed5yr_95") {
+      all_rates %>% select(Index,UK_95) %>% rename(rate=UK_95)
+    } else {
+    all_rates %>% select(Index,UK_75) %>% rename(rate=UK_75)
     }
-    else  {
-      fixed5yr_df %>% select(Index,UK_75) %>% rename(rate=UK_75)
-    }  
   })
   
   cir_sims <- reactive({
@@ -28,12 +26,12 @@ function(input, output, server) {
   
   bs_sims <- reactive({
     set.seed(12345)
-    br<-sel_rate() %>%
+    dat <-sel_rate() %>%
       filter(
         Index >= input$start,
         Index <= input$end) %>% 
       drop_na()
-    br<-br$rate
+    br<-dat$rate
     validate(
       need(
         length(br) >= 2, 
@@ -146,7 +144,7 @@ function(input, output, server) {
     out <- sel_sim()
     names(out) <- paste0("Simulation", 1:length(out))
     out <- as_data_frame(out)
-    out <- cbind("t" = 1:length(out), out)
+    out <- cbind("t" = 1:nrow(out), out)
     
     DT::datatable(
       out,

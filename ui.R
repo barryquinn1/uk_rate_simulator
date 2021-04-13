@@ -4,21 +4,37 @@ fluidPage(
   fluidRow(
     headerPanel(
       tags$div(
-        h1("Interest Rate Forecasts", align="center"),
-        img(src="rw_hex.png", align="left",width="10%",
+        h1("Interest Rate Forecasting Stories", style="display: inline",align="center"),
+        img(src="rw_hex.png", align="left",width="3%",style="display: inline",
             href="https://github.com/barryquinn1/tsfe"),
-        h3("Simulation stories",align="center"),
       ), windowTitle = "Interest Rate"),
-    p("These stories are inspired by discussions with my learned colleagues", 
+    p("Big-world prediction is hard but we can learn alot from the pyschology of forecasting.",
+    a(" Phil Tetlock",hef="https://www.sas.upenn.edu/tetlock/"),
+    "points out that its not brainpower, or statistical prowess that is the 
+    most important attribute of a superforecaster, but the ability to rethink 
+      and change our minds. ",a(" Adam Grant", href="https://www.adamgrant.net/"),
+    "called this trait confident humulity in his latest book Think Again. 
+      He defines confident humilty as:",
+      strong("the ability to doubt our own judgement and 
+           the curiousity to seek our new information that
+           can be used to revise our predictions.")),
+    br(),
+    p("Forecasting interest rates is a hard big-world problem which I have been rethinking
+    through discussions with my learned colleagues", 
         a("Mark Farrell",href="https://proactuary.com/about-proactuary/")," and",
         a("Ronan Gallagher.",
           href="https://www.business-school.ed.ac.uk/staff/ronan-gallagher"),
-      " As we talk about what the future holds for UK interest rates, 
-      I thought to build a simulations",em("story-teller"),
-      "to see what the future may hold. This app allows to to tell future stories using the parametric techniques of", 
+      "  As we talk about what the future holds for UK interest rates, 
+      the reluctant statistican in me thought to build a small-world future possibilities ",em("story-teller"),
+      "by simulation. Big-world prediction is hard as 
+      the most important factors for accurate forecasts are usually the hardest to measure. 
+      In the small-world we can use historical data, and the computer-age tools of simulation. 
+      This app allows to to tell future stories using the parametric techniques of", 
       a("Cox–Ingersoll–Ross (CIR) model",href="https://en.wikipedia.org/wiki/Cox–Ingersoll–Ross_model"),", a one-factor market risk model"
-      ,"The nonparametric stories evolve via a bootstrap of the change in the underlying historical interest rate.  The app allows the choice of
-  the stories focus, the Bank of England base rate or the average 5 year fixed mortgage rate for LTV95% or LTV75%.",align="center")
+      ,". The nonparametric stories evolve via a bootstrap of the change in the underlying historical interest rate.  
+      As academic Dads our discussion focused on two interest rates important to our family's futures, 
+      the Bank of England base rate and the 5 year fixed mortgage rate.  
+      The data used is sourced from the Bank of England database.")
   ),
   br(),
   fluidRow(
@@ -72,13 +88,13 @@ fluidPage(
           column(width = 6,
             selectInput(inputId="start",label="Sample Start Point",datelist,selected = min)),
           column(width = 6,
-            selectInput(inputId="end",label="Sample End Point",datelist,selected = max))))))),
+            selectInput(inputId="end",label="Sample End Point",datelist,selected = max)))))),
     column(
       width = 9,
       tabsetPanel(
         tabPanel("Plot",br(),highchartOutput("sims_chart", height = 600)),
         tabPanel("Table",br(),DT::dataTableOutput("sim_tbl")), 
-        tabPanel("Distributon",br(),highchartOutput("sims_dist", height = 600)))),
+        tabPanel("Distributon",br(),highchartOutput("sims_dist", height = 600))))),
   fluidRow(
     column(
       width = 12,
