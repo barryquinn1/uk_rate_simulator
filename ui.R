@@ -5,34 +5,34 @@ fluidPage(
     headerPanel(
       tags$div(
         h1("Interest Rate Forecasting Stories", style="display: inline",align="center"),
-        img(src="rw_hex.png", align="left",width="3%",style="display: inline",
-            href="https://github.com/barryquinn1/tsfe"),
-      ), windowTitle = "Interest Rate"),
-    p("Big-world prediction is hard but we can learn alot from the pyschology of forecasting.",
-    a(" Phil Tetlock",hef="https://www.sas.upenn.edu/tetlock/"),
+        img(src="rw_hex.png", align="left",width="3%",style="display: inline"),
+        h3("by",a("Quinference",href="https://www.quinference.com/"),style="display: inline"))),
+    p("Big-world prediction is hard but we can learn alot from the pyschology of forecasting.  ",
+    a("Phil Tetlock",hef="https://www.sas.upenn.edu/tetlock/"),
     "points out that its not brainpower, or statistical prowess that is the 
     most important attribute of a superforecaster, but the ability to rethink 
-      and change our minds. ",a(" Adam Grant", href="https://www.adamgrant.net/"),
-    "called this trait confident humulity in his latest book Think Again. 
-      He defines confident humilty as:",
+      and change our minds.  ",a("Adam Grant", href="https://www.adamgrant.net/"),
+    "called this trait confident humulity in his latest book",
+    a("Think Again.",href="https://www.adamgrant.net/book/think-again/"), 
+      "  He defines confident humilty as:",
       strong("the ability to doubt our own judgement and 
-           the curiousity to seek our new information that
+           the curiousity to seek out new information that
            can be used to revise our predictions.")),
     br(),
     p("Forecasting interest rates is a hard big-world problem which I have been rethinking
     through discussions with my learned colleagues", 
         a("Mark Farrell",href="https://proactuary.com/about-proactuary/")," and",
-        a("Ronan Gallagher.",
-          href="https://www.business-school.ed.ac.uk/staff/ronan-gallagher"),
-      "  As we talk about what the future holds for UK interest rates, 
-      the reluctant statistican in me thought to build a small-world future possibilities ",em("story-teller"),
-      "by simulation. Big-world prediction is hard as 
-      the most important factors for accurate forecasts are usually the hardest to measure. 
-      In the small-world we can use historical data, and the computer-age tools of simulation. 
-      This app allows to to tell future stories using the parametric techniques of", 
-      a("Cox–Ingersoll–Ross (CIR) model",href="https://en.wikipedia.org/wiki/Cox–Ingersoll–Ross_model"),", a one-factor market risk model"
-      ,". The nonparametric stories evolve via a bootstrap of the change in the underlying historical interest rate.  
-      As academic Dads our discussion focused on two interest rates important to our family's futures, 
+        a("Ronan Gallagher.",href="https://www.business-school.ed.ac.uk/staff/ronan-gallagher"),
+      "   As we talk about what the future holds for UK interest rates, 
+      the",em("number hugger"),"in me thought to build a small-world ",em("story-teller"),
+      "using computer-age statistical inference. Big-world prediction is hard, not least because 
+      the most important factors for accurate forecasts are the " ,em("black and grey swan"), " events, which lay hidden in most statistical models."),
+    br(),
+    p("In the small-world we can use historical data, and the computer-age simulation inference, to tell some parametric and non-parametric stories.  
+      Specifically, this application allows to to tell stories using the parametric techniques of", 
+      a("Cox–Ingersoll–Ross (CIR) model",href="https://en.wikipedia.org/wiki/Cox–Ingersoll–Ross_model"),
+      "; a one-factor market risk model. The nonparametric stories evolve via a bootstrap of the change in the underlying historical interest rate.  
+      As academic ",em("Das"), " our discussion focused on two interest rates important to our familys' futures, 
       the Bank of England base rate and the 5 year fixed mortgage rate.  
       The data used is sourced from the Bank of England database.")
   ),
